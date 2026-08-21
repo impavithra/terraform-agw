@@ -1,5 +1,27 @@
-name: terraform-agw
+trigger:
+- main
 
-infra:
-  provider: terraform
-  path: .
+pool:
+  name: Pv-agent
+
+
+steps:
+- checkout: self
+
+- script: |
+    azd version
+    terraform --version
+  displayName: "Check azd and Terraform"
+
+- task: AzureCLI@2
+  displayName: "Provision Infrastructure using azd"
+  inputs:
+    azureSubscription: 'b13'
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      azd config set auth.useAzCliAuth true
+      azd provision \
+        --environment terraform-agw \
+        --location centralindia \
+        --no-prompt
